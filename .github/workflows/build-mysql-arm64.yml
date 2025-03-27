@@ -164,7 +164,11 @@ jobs:
 
             # 编译 MySQL
             echo "开始编译 MySQL..."
-            make -j$(nproc) || { echo "MySQL 编译失败"; exit 1; }
+            make -j$(nproc) VERBOSE=1 2>&1 | tee /work/mysql/build.log || { 
+              echo "MySQL 编译失败，查看详细日志："
+              cat /work/mysql/build.log
+              exit 1 
+            }
             echo "MySQL 编译完成"
             
             # 安装到临时目录
