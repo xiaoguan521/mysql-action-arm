@@ -32,9 +32,13 @@ jobs:
           install: |
             apt-get update && apt-get install -y sudo wget curl ca-certificates
           run: |
+            # 设置非交互式环境变量，避免配置提示
+            export DEBIAN_FRONTEND=noninteractive
+            export TZ=Asia/Shanghai
+            
             # 安装所有构建依赖
             sudo apt-get update
-            sudo apt-get install -y \
+            sudo -E apt-get install -y \
               build-essential \
               cmake \
               git \
@@ -90,7 +94,7 @@ jobs:
             mkdir build
             cd build 
 
-            # 配置 MySQL 编译选项
+             # 配置 MySQL 编译选项
             cmake .. \
               -DCMAKE_BUILD_TYPE=Release \
               -DCMAKE_INSTALL_PREFIX=/usr \
