@@ -1,0 +1,48 @@
+# 编译产生的文件
+*.o
+*.so
+*.a
+*.lo
+*.la
+*.dylib
+
+# 编译目录
+build/
+/build*/
+cmake-build*/
+
+# 临时文件
+*.tmp
+*.bak
+*.swp
+*~
+.DS_Store
+
+# RPM 相关文件
+/rpmbuild/
+*.rpm
+*.spec
+*.tar.gz
+*.tar.bz2
+*.zip
+
+# 日志文件
+*.log
+*.out
+
+# IDE 和编辑器文件
+.idea/
+.vscode/
+*.sublime-*
+*.code-workspace
+
+# 工作目录
+/work/
+/mysql*/
+
+# 依赖包
+/downloads/
+
+# 系统和隐藏文件
+.DS_Store
+Thumbs.db 
