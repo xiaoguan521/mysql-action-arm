@@ -16,109 +16,60 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
       
       - uses: uraimo/run-on-arch-action@v2
         with:
           arch: aarch64
-          distro: ubuntu20.04
+          distro: centos7
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           dockerRunArgs: |
             --privileged
-          install: |
-            apt-get update && apt-get install -y sudo
           setup: |
-            sudo apt-get update
-            sudo apt-get install -y \
-              build-essential \
+            yum update -y
+            yum install -y \
+              sudo \
+              gcc \
+              gcc-c++ \
+              make \
               cmake \
-              rpm \
               rpm-build \
               wget \
               curl \
               git \
-              libncurses5-dev \
-              libssl-dev \
-              libaio-dev \
-              libtirpc-dev \
-              libwrap0-dev \
-              libreadline-dev \
-              zlib1g-dev \
-              libpam0g-dev \
-              libldap2-dev \
-              libsasl2-dev \
-              libtirpc-dev \
-              libnuma-dev \
-              libjemalloc-dev \
-              libevent-dev \
-              libcurl4-openssl-dev \
-              libxml2-dev \
-              libffi-dev \
-              libpcre3-dev \
-              libedit-dev \
-              libicu-dev \
-              libboost-dev \
-              libboost-system-dev \
-              libboost-filesystem-dev \
-              libboost-thread-dev \
-              libboost-program-options-dev \
-              libboost-iostreams-dev \
-              libboost-regex-dev \
-              libboost-date-time-dev \
-              libboost-atomic-dev \
-              libboost-chrono-dev \
-              libboost-context-dev \
-              libboost-coroutine-dev \
-              libboost-exception-dev \
-              libboost-fiber-dev \
-              libboost-graph-dev \
-              libboost-locale-dev \
-              libboost-log-dev \
-              libboost-math-dev \
-              libboost-random-dev \
-              libboost-serialization-dev \
-              libboost-signals-dev \
-              libboost-stacktrace-dev \
-              libboost-test-dev \
-              libboost-timer-dev \
-              libboost-type-erasure-dev \
-              libboost-wave-dev \
-              libboost-wserialization-dev \
-              libboost-dev \
-              libboost-all-dev \
-              libboost-atomic-dev \
-              libboost-chrono-dev \
-              libboost-container-dev \
-              libboost-context-dev \
-              libboost-coroutine-dev \
-              libboost-date-time-dev \
-              libboost-exception-dev \
-              libboost-fiber-dev \
-              libboost-filesystem-dev \
-              libboost-graph-dev \
-              libboost-graph-parallel-dev \
-              libboost-iostreams-dev \
-              libboost-locale-dev \
-              libboost-log-dev \
-              libboost-math-dev \
-              libboost-mpi-dev \
-              libboost-mpi-python-dev \
-              libboost-numpy-dev \
-              libboost-program-options-dev \
-              libboost-python-dev \
-              libboost-random-dev \
-              libboost-regex-dev \
-              libboost-serialization-dev \
-              libboost-signals-dev \
-              libboost-stacktrace-dev \
-              libboost-system-dev \
-              libboost-test-dev \
-              libboost-thread-dev \
-              libboost-timer-dev \
-              libboost-type-erasure-dev \
-              libboost-wave-dev \
-              libboost-wserialization-dev
+              ncurses-devel \
+              openssl-devel \
+              libaio-devel \
+              libtirpc-devel \
+              tcp_wrappers-devel \
+              readline-devel \
+              zlib-devel \
+              pam-devel \
+              openldap-devel \
+              cyrus-sasl-devel \
+              libtirpc-devel \
+              numactl-devel \
+              jemalloc-devel \
+              libevent-devel \
+              libcurl-devel \
+              libxml2-devel \
+              libffi-devel \
+              pcre-devel \
+              libedit-devel \
+              boost-devel \
+              boost-system \
+              boost-filesystem \
+              boost-thread \
+              boost-program-options \
+              boost-iostreams \
+              boost-regex \
+              boost-date-time \
+              boost-atomic \
+              boost-chrono
           run: |
             # 创建工作目录
             mkdir -p /work/mysql
@@ -140,7 +91,7 @@ jobs:
             mkdir build
             cd build 
 
-             # 配置 MySQL 编译选项
+            # 配置 MySQL 编译选项
             cmake .. \
               -DCMAKE_BUILD_TYPE=Release \
               -DCMAKE_INSTALL_PREFIX=/usr \
