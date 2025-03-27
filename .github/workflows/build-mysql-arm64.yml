@@ -25,51 +25,53 @@ jobs:
       - uses: uraimo/run-on-arch-action@v2
         with:
           arch: aarch64
-          distro: fedora_latest
+          distro: ubuntu20.04
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           dockerRunArgs: |
             --privileged
+          install: |
+            apt-get update && apt-get install -y sudo
           setup: |
-            dnf update -y
-            dnf install -y \
-              sudo \
-              gcc \
-              gcc-c++ \
-              make \
+            sudo apt-get update
+            sudo apt-get install -y \
+              build-essential \
               cmake \
-              rpm-build \
+              rpm \
+              alien \
               wget \
               curl \
               git \
-              ncurses-devel \
-              openssl-devel \
-              libaio-devel \
-              libtirpc-devel \
-              tcp_wrappers-devel \
-              readline-devel \
-              zlib-devel \
-              pam-devel \
-              openldap-devel \
-              cyrus-sasl-devel \
-              libtirpc-devel \
-              numactl-devel \
-              jemalloc-devel \
-              libevent-devel \
-              libcurl-devel \
-              libxml2-devel \
-              libffi-devel \
-              pcre-devel \
-              libedit-devel \
-              boost-devel \
-              boost-system \
-              boost-filesystem \
-              boost-thread \
-              boost-program-options \
-              boost-iostreams \
-              boost-regex \
-              boost-date-time \
-              boost-atomic \
-              boost-chrono
+              libncurses5-dev \
+              libssl-dev \
+              libaio-dev \
+              libtirpc-dev \
+              libwrap0-dev \
+              libreadline-dev \
+              zlib1g-dev \
+              libpam0g-dev \
+              libldap2-dev \
+              libsasl2-dev \
+              libnuma-dev \
+              libjemalloc-dev \
+              libevent-dev \
+              libcurl4-openssl-dev \
+              libxml2-dev \
+              libffi-dev \
+              libpcre3-dev \
+              libedit-dev \
+              libicu-dev \
+              libboost-dev \
+              libboost-system-dev \
+              libboost-filesystem-dev \
+              libboost-thread-dev \
+              libboost-program-options-dev \
+              libboost-iostreams-dev \
+              libboost-regex-dev \
+              libboost-date-time-dev \
+              libboost-atomic-dev \
+              libboost-chrono-dev \
+              libboost-context-dev \
+              libboost-coroutine-dev
           run: |
             # 创建工作目录
             mkdir -p /work/mysql
@@ -140,93 +142,34 @@ jobs:
             # 编译 MySQL
             make -j$(nproc)
             
-            # 安装 MySQL
-            make install
+            # 安装到临时目录
+            mkdir -p /tmp/mysql-install
+            make install DESTDIR=/tmp/mysql-install
             
-            # 创建 RPM 打包目录结构
-            mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
-            
-            # 准备 RPM spec 文件
-            cat > ~/rpmbuild/SPECS/mysql.spec << 'EOF'
-            %define _prefix /usr
-            %define _sysconfdir /etc
-            %define _localstatedir /var
-            %define _datadir /var/lib/mysql
-            
-            Name: mysql
+            # 创建 .deb 包
+            mkdir -p /tmp/mysql-deb/DEBIAN
+            cat > /tmp/mysql-deb/DEBIAN/control << EOF
+            Package: mysql
             Version: 5.7.33
-            Release: 1%{?dist}
-            Summary: MySQL Server
-            License: GPLv2
-            Group: Applications/Databases
-            URL: https://www.mysql.com/
-            Source0: mysql-5.7.33.tar.gz
-            BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-            
-            %description
-            MySQL is a multi-user, multi-threaded SQL database server.
-            
-            %prep
-            %setup -q
-            
-            %build
-            mkdir -p build
-            cd build
-            cmake .. \
-              -DCMAKE_BUILD_TYPE=Release \
-              -DCMAKE_INSTALL_PREFIX=%{_prefix} \
-              -DMYSQL_DATADIR=%{_datadir} \
-              -DSYSCONFDIR=%{_sysconfdir} \
-              -DWITH_SSL=system \
-              -DWITH_ZLIB=system \
-              -DWITH_LIBWRAP=ON \
-              -DWITH_JEMALLOC=ON \
-              -DWITH_EXTRA_CHARSETS=all \
-              -DENABLED_LOCAL_INFILE=1 \
-              -DWITH_EMBEDDED_SERVER=1 \
-              -DWITH_INNODB_MEMCACHED=1 \
-              -DWITH_ARCHIVE_STORAGE_ENGINE=1 \
-              -DWITH_BLACKHOLE_STORAGE_ENGINE=1 \
-              -DWITH_FEDERATED_STORAGE_ENGINE=1 \
-              -DWITH_PARTITION_STORAGE_ENGINE=1 \
-              -DWITH_PERFSCHEMA_STORAGE_ENGINE=1 \
-              -DWITH_BOOST=/usr \
-              -DWITH_SYSTEMD=0 \
-              -DWITH_UNIT_TESTS=0
-            make %{?_smp_mflags}
-            
-            %install
-            rm -rf $RPM_BUILD_ROOT
-            cd build
-            make install DESTDIR=$RPM_BUILD_ROOT
-            
-            %clean
-            rm -rf $RPM_BUILD_ROOT
-            
-            %files
-            %defattr(-,root,root)
-            %{_prefix}/bin/*
-            %{_prefix}/lib/mysql/*
-            %{_prefix}/include/mysql/*
-            %{_prefix}/share/mysql/*
-            %{_sysconfdir}/my.cnf
-            %{_datadir}/
-            
-            %changelog
-            * Wed Mar 20 2024 MySQL Builder <builder@example.com> - 5.7.33-1
-            - Initial package for ARM64
+            Section: database
+            Priority: optional
+            Architecture: arm64
+            Maintainer: MySQL Builder <builder@example.com>
+            Description: MySQL Database Server
+             MySQL is a multi-user, multi-threaded SQL database server.
             EOF
             
-            # 复制源码到 RPM 构建目录
-            cp mysql-5.7.33.tar.gz ~/rpmbuild/SOURCES/
+            # 复制安装文件到包目录
+            cp -r /tmp/mysql-install/* /tmp/mysql-deb/
             
-            # 构建 RPM 包
-            rpmbuild -bb ~/rpmbuild/SPECS/mysql.spec
+            # 构建 .deb 包
+            dpkg-deb --build /tmp/mysql-deb /work/mysql_5.7.33_arm64.deb
             
-            # 复制生成的 RPM 包到工作目录
-            cp ~/rpmbuild/RPMS/aarch64/mysql-5.7.33-1.aarch64.rpm /work/
+            # 使用 alien 将 .deb 包转换为 .rpm 包
+            cd /work
+            sudo alien --to-rpm --scripts mysql_5.7.33_arm64.deb
             
-            # 列出生成的 RPM 包
+            # 列出生成的包
             ls -la /work/
             
             # 将 RPM 包复制到共享目录以便上传
