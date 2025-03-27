@@ -22,6 +22,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Cache MySQL build
+        uses: actions/cache@v3
+        with:
+          path: |
+            /work/mysql
+            ~/.ccache
+          key: ${{ runner.os }}-mysql-5.7.33-${{ hashFiles('**/build-mysql-arm64.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-mysql-5.7.33-
+      
       - uses: uraimo/run-on-arch-action@v2
         with:
           arch: aarch64
@@ -29,6 +39,11 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           dockerRunArgs: |
             --privileged
+            --memory=6g
+            --cpus=4
+            -e MAKEFLAGS="-j4"
+            -e DEBIAN_FRONTEND=noninteractive
+            -e TZ=Asia/Shanghai
           install: |
             apt-get update && apt-get install -y sudo wget curl ca-certificates
           run: |
@@ -80,6 +95,9 @@ jobs:
             mkdir -p /work/mysql
             cd /work/mysql
             
+            # 创建 Boost 目录
+            mkdir -p /work/mysql/boost
+            
             # 下载 MySQL 5.7.33 源码
             wget https://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-5.7.33.tar.gz
             
@@ -95,6 +113,7 @@ jobs:
             cd build 
 
              # 配置 MySQL 编译选项
+            echo "开始配置 MySQL 编译选项..."
             cmake .. \
               -DCMAKE_BUILD_TYPE=Release \
               -DCMAKE_INSTALL_PREFIX=/usr \
@@ -127,7 +146,8 @@ jobs:
               -DWITH_FEDERATED_STORAGE_ENGINE=1 \
               -DWITH_PARTITION_STORAGE_ENGINE=1 \
               -DWITH_PERFSCHEMA_STORAGE_ENGINE=1 \
-              -DWITH_BOOST=/usr \
+              -DDOWNLOAD_BOOST=1 \
+              -DWITH_BOOST=/work/mysql/boost \
               -DWITH_SYSTEMD=0 \
               -DWITH_UNIT_TESTS=0 \
               -DWITHOUT_ROCKSDB=1 \
@@ -138,14 +158,19 @@ jobs:
               -DWITHOUT_NDB=1 \
               -DWITHOUT_NDBINFO=1 \
               -DWITHOUT_NDB_DEBUG=1 \
-              -DWITHOUT_NDB_DEBUG_OPTS=1
+              -DWITHOUT_NDB_DEBUG_OPTS=1 || { echo "CMake 配置失败"; exit 1; }
+            echo "MySQL 编译选项配置完成"
 
             # 编译 MySQL
-            make -j$(nproc)
+            echo "开始编译 MySQL..."
+            make -j$(nproc) || { echo "MySQL 编译失败"; exit 1; }
+            echo "MySQL 编译完成"
             
             # 安装到临时目录
+            echo "开始安装 MySQL..."
             mkdir -p /tmp/mysql-install
-            make install DESTDIR=/tmp/mysql-install
+            make install DESTDIR=/tmp/mysql-install || { echo "MySQL 安装失败"; exit 1; }
+            echo "MySQL 安装完成"
             
             # 创建 .deb 包
             mkdir -p /tmp/mysql-deb/DEBIAN
