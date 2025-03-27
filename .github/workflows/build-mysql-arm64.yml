@@ -2,9 +2,16 @@ name: Build MySQL 5.7.33 ARM64 RPM
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: '是否启用调试模式'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   build:
@@ -263,4 +270,18 @@ jobs:
             
             # 复制生成的 RPM 包到工作目录
             cp ~/rpmbuild/RPMS/aarch64/mysql-5.7.33-1.aarch64.rpm /work/
+            
+            # 列出生成的 RPM 包
+            ls -la /work/
+            
+            # 将 RPM 包复制到共享目录以便上传
+            mkdir -p /github/workspace/output
+            cp /work/*.rpm /github/workspace/output/
+      
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v3
+        with:
+          name: mysql-5.7.33-arm64-rpm
+          path: output/*.rpm
+          retention-days: 30
             
