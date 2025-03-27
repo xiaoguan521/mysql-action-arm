@@ -24,9 +24,13 @@ jobs:
           arch: aarch64
           distro: ubuntu20.04
           githubToken: ${{ secrets.GITHUB_TOKEN }}
+          dockerRunArgs: |
+            --privileged
+          install: |
+            apt-get update && apt-get install -y sudo
           setup: |
-            apt-get update
-            apt-get install -y \
+            sudo apt-get update
+            sudo apt-get install -y \
               build-essential \
               cmake \
               rpm \
