@@ -30,7 +30,7 @@ jobs:
           dockerRunArgs: |
             --privileged
           install: |
-            apt-get update && apt-get install -y sudo
+            apt-get update && apt-get install -y sudo wget curl ca-certificates
           setup: |
             sudo apt-get update
             sudo apt-get install -y \
@@ -38,8 +38,6 @@ jobs:
               cmake \
               rpm \
               alien \
-              wget \
-              curl \
               git \
               libncurses5-dev \
               libssl-dev \
