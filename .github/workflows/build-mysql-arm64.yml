@@ -279,7 +279,7 @@ jobs:
             cp /work/*.rpm /github/workspace/output/
       
       - name: 上传构建产物
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: mysql-5.7.33-arm64-rpm
           path: output/*.rpm
