@@ -59,6 +59,7 @@ jobs:
               git \
               rpm \
               alien \
+              pkg-config \
               libncurses5-dev \
               libssl-dev \
               libaio-dev \
