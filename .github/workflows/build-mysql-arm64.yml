@@ -25,13 +25,13 @@ jobs:
       - uses: uraimo/run-on-arch-action@v2
         with:
           arch: aarch64
-          distro: centos7
+          distro: fedora_latest
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           dockerRunArgs: |
             --privileged
           setup: |
-            yum update -y
-            yum install -y \
+            dnf update -y
+            dnf install -y \
               sudo \
               gcc \
               gcc-c++ \
