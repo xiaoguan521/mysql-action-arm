@@ -162,7 +162,8 @@ jobs:
               -DWITHOUT_NDB=1 \
               -DWITHOUT_NDBINFO=1 \
               -DWITHOUT_NDB_DEBUG=1 \
-              -DWITHOUT_NDB_DEBUG_OPTS=1 || { echo "CMake 配置失败"; exit 1; }
+              -DWITHOUT_NDB_DEBUG_OPTS=1 \
+              -DDISABLE_ABI_CHECK=1 || { echo "CMake 配置失败"; exit 1; }
             echo "MySQL 编译选项配置完成"
 
             # 编译 MySQL
