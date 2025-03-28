@@ -41,11 +41,11 @@ jobs:
             --privileged
             --memory=8G
             --cpus=2
-            -e MAKEFLAGS="-j2"
-            -e DEBIAN_FRONTEND=noninteractive
-            -e TZ=Asia/Shanghai
-            -e CFLAGS="-O1 -g"
-            -e CXXFLAGS="-O1 -g"
+            --env "MAKEFLAGS=-j2"
+            --env "DEBIAN_FRONTEND=noninteractive"
+            --env "TZ=Asia/Shanghai"
+            --env "CFLAGS=-O1 -g"
+            --env "CXXFLAGS=-O1 -g"
           install: |
             apt-get update && apt-get install -y sudo wget curl ca-certificates
           run: |
