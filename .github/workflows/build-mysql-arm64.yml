@@ -90,7 +90,12 @@ jobs:
               libboost-atomic-dev \
               libboost-chrono-dev \
               libboost-context-dev \
-              libboost-coroutine-dev
+              libboost-coroutine-dev \
+              linux-headers-generic \
+              libevent-pthreads-2.1-7 \
+              libevent-core-2.1-7 \
+              libevent-extra-2.1-7 \
+              libevent-openssl-2.1-7
 
             # 创建工作目录
             mkdir -p /work/mysql
