@@ -52,12 +52,7 @@ jobs:
             export DEBIAN_FRONTEND=noninteractive
             export TZ=Asia/Shanghai
             
-            # 创建 swap 文件
-            sudo fallocate -l 8G /swapfile
-            sudo chmod 600 /swapfile
-            sudo mkswap /swapfile
-            sudo swapon /swapfile
-            
+          
             # 安装所有构建依赖
             sudo apt-get update
             sudo -E apt-get install -y \
