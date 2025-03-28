@@ -44,8 +44,6 @@ jobs:
             --env "MAKEFLAGS=-j2"
             --env "DEBIAN_FRONTEND=noninteractive"
             --env "TZ=Asia/Shanghai"
-            --env "CFLAGS=-O1 -g"
-            --env "CXXFLAGS=-O1 -g"
           install: |
             apt-get update && apt-get install -y sudo wget curl ca-certificates
           run: |
@@ -116,8 +114,8 @@ jobs:
             echo "开始配置 MySQL 编译选项..."
             cmake .. \
               -DCMAKE_BUILD_TYPE=Release \
-              -DCMAKE_C_FLAGS="-O1 -g" \
-              -DCMAKE_CXX_FLAGS="-O1 -g" \
+              -DCMAKE_C_FLAGS="-O1" \
+              -DCMAKE_CXX_FLAGS="-O1" \
               -DCMAKE_INSTALL_PREFIX=/usr \
               -DMYSQL_DATADIR=/var/lib/mysql \
               -DSYSCONFDIR=/etc \
