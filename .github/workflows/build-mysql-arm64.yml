@@ -44,6 +44,8 @@ jobs:
             -e MAKEFLAGS="-j2"
             -e DEBIAN_FRONTEND=noninteractive
             -e TZ=Asia/Shanghai
+            -e CFLAGS="-O1 -g"
+            -e CXXFLAGS="-O1 -g"
           install: |
             apt-get update && apt-get install -y sudo wget curl ca-certificates
           run: |
@@ -114,6 +116,8 @@ jobs:
             echo "开始配置 MySQL 编译选项..."
             cmake .. \
               -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_C_FLAGS="-O1 -g" \
+              -DCMAKE_CXX_FLAGS="-O1 -g" \
               -DCMAKE_INSTALL_PREFIX=/usr \
               -DMYSQL_DATADIR=/var/lib/mysql \
               -DSYSCONFDIR=/etc \
@@ -163,6 +167,12 @@ jobs:
             make -j2 VERBOSE=1 2>&1 | tee /work/mysql/build.log || { 
               echo "MySQL 编译失败，查看详细日志："
               cat /work/mysql/build.log
+              echo "检查 mysys 目录的编译状态："
+              ls -la mysys/CMakeFiles/mysys.dir/
+              echo "检查系统内存状态："
+              free -h
+              echo "检查系统负载："
+              top -b -n 1
               exit 1 
             }
             echo "MySQL 编译完成"
