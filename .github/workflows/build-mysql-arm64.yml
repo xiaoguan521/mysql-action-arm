@@ -39,7 +39,7 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           dockerRunArgs: |
             --privileged
-            --memory=8g
+            --memory=8G
             --cpus=2
             -e MAKEFLAGS="-j2"
             -e DEBIAN_FRONTEND=noninteractive
