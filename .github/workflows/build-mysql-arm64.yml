@@ -39,9 +39,10 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           dockerRunArgs: |
             --privileged
-            --memory=8G
+            --memory=16G
+            --memory-swap=16G
             --cpus=2
-            --env "MAKEFLAGS=-j2"
+            --env "MAKEFLAGS=-j1"
             --env "DEBIAN_FRONTEND=noninteractive"
             --env "TZ=Asia/Shanghai"
           install: |
@@ -50,6 +51,12 @@ jobs:
             # 设置非交互式环境变量，避免配置提示
             export DEBIAN_FRONTEND=noninteractive
             export TZ=Asia/Shanghai
+            
+            # 创建 swap 文件
+            sudo fallocate -l 8G /swapfile
+            sudo chmod 600 /swapfile
+            sudo mkswap /swapfile
+            sudo swapon /swapfile
             
             # 安装所有构建依赖
             sudo apt-get update
@@ -168,7 +175,7 @@ jobs:
 
             # 编译 MySQL
             echo "开始编译 MySQL..."
-            make -j2 VERBOSE=1 2>&1 | tee /work/mysql/build.log || { 
+            make -j1 VERBOSE=1 2>&1 | tee /work/mysql/build.log || { 
               echo "MySQL 编译失败，查看详细日志："
               cat /work/mysql/build.log
               echo "检查 mysys 目录的编译状态："
