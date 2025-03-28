@@ -39,9 +39,9 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           dockerRunArgs: |
             --privileged
-            --memory=6g
-            --cpus=4
-            -e MAKEFLAGS="-j4"
+            --memory=8g
+            --cpus=2
+            -e MAKEFLAGS="-j2"
             -e DEBIAN_FRONTEND=noninteractive
             -e TZ=Asia/Shanghai
           install: |
@@ -164,7 +164,7 @@ jobs:
 
             # 编译 MySQL
             echo "开始编译 MySQL..."
-            make -j$(nproc) VERBOSE=1 2>&1 | tee /work/mysql/build.log || { 
+            make -j2 VERBOSE=1 2>&1 | tee /work/mysql/build.log || { 
               echo "MySQL 编译失败，查看详细日志："
               cat /work/mysql/build.log
               exit 1 
