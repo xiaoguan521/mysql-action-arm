@@ -96,24 +96,21 @@ jobs:
             mkdir -p /work/mysql
             cd /work/mysql
             
-            # 创建 Boost 目录
-            mkdir -p /work/mysql/boost
-            
-            # 下载 MySQL 5.7.33 源码
-            wget https://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-5.7.33.tar.gz
+            # 下载带 Boost 的 MySQL 5.7.33 源码
+            wget https://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-boost-5.7.33.tar.gz
             
             # MD5校验文件不可用，跳过验证
             echo "跳过MD5验证，直接继续构建..."
             
             # 解压源码
-            tar xzf mysql-5.7.33.tar.gz
+            tar xzf mysql-boost-5.7.33.tar.gz
             cd mysql-5.7.33
             
             # 创建编译目录
             mkdir build
             cd build 
 
-             # 配置 MySQL 编译选项
+            # 配置 MySQL 编译选项
             echo "开始配置 MySQL 编译选项..."
             cmake .. \
               -DCMAKE_BUILD_TYPE=Release \
@@ -147,8 +144,7 @@ jobs:
               -DWITH_FEDERATED_STORAGE_ENGINE=1 \
               -DWITH_PARTITION_STORAGE_ENGINE=1 \
               -DWITH_PERFSCHEMA_STORAGE_ENGINE=1 \
-              -DDOWNLOAD_BOOST=1 \
-              -DWITH_BOOST=/work/mysql/boost \
+              -DWITH_BOOST=../boost \
               -DWITH_SYSTEMD=0 \
               -DWITH_UNIT_TESTS=0 \
               -DWITHOUT_ROCKSDB=1 \
