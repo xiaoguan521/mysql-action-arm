@@ -121,8 +121,8 @@ jobs:
             echo "开始配置 MySQL 编译选项..."
             cmake .. \
               -DCMAKE_BUILD_TYPE=Release \
-              -DCMAKE_C_FLAGS="-O1" \
-              -DCMAKE_CXX_FLAGS="-O1" \
+              -DCMAKE_C_FLAGS="-O0 -g0 -fno-omit-frame-pointer" \
+              -DCMAKE_CXX_FLAGS="-O0 -g0 -fno-omit-frame-pointer" \
               -DCMAKE_INSTALL_PREFIX=/usr \
               -DMYSQL_DATADIR=/var/lib/mysql \
               -DSYSCONFDIR=/etc \
